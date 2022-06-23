@@ -9,7 +9,7 @@ void BT_Init(BT_Button* button, GPIO_TypeDef* GPIOx_, uint16_t pin_, uint32_t cl
 	button->lastPressTime = HAL_GetTick();
 	button->periodCounter = 0;
 
-	MCL_Init(&button->clock, clickPeriod_, timPeriod_);
+	MCL_Init(&button->clock, clickPeriod_);
 
 	button->delta = 0;
 
@@ -58,7 +58,7 @@ int BT_CB_TIM(BT_Button* button, TIM_HandleTypeDef* htim)
 {
 	MCL_CallBack_Timer(&(button->clock));
 
-	button->delta += button->clock.period;
+	button->delta += CLOCK_PERIOD_MS * 10;
 
 	if (MCL_Pull(&(button->clock)) == MCL_STATE_TIMEOUT)
 	{
