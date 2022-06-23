@@ -2,6 +2,7 @@
 #define INC_STM_BUTTON_H_
 
 #include "main.h"
+#include "stm_mclock.h"
 
 typedef enum BT_ClickResult {
 	BT_NO_CLICK = 0,
@@ -20,13 +21,15 @@ typedef struct BT_Button {
 	uint32_t clickPeriod;
 	uint32_t periodCounter;
 
+	MCL_Clock clock;
+
 	uint32_t delta;
 
 	uint8_t presses;
 } BT_Button;
 
 
-void BT_Init(BT_Button* button, GPIO_TypeDef* GPIOx_, uint16_t pin_, uint32_t clickPeriod_);
+void BT_Init(BT_Button* button, GPIO_TypeDef* GPIOx_, uint16_t pin_, uint32_t clickPeriod_, uint32_t timPeriod_);
 
 BT_ClickResult BT_CB_EXTI(BT_Button* button, uint16_t triggerPin);
 

@@ -1,6 +1,6 @@
 #include "stm_button.h"
 
-void BT_Init(BT_Button* button, GPIO_TypeDef* GPIOx_, uint16_t pin_, uint32_t clickPeriod_)
+void BT_Init(BT_Button* button, GPIO_TypeDef* GPIOx_, uint16_t pin_, uint32_t clickPeriod_, uint32_t timPeriod_)
 {
 	button->GPIOx = GPIOx_;
 	button->pin = pin_;
@@ -8,6 +8,8 @@ void BT_Init(BT_Button* button, GPIO_TypeDef* GPIOx_, uint16_t pin_, uint32_t cl
 
 	button->lastPressTime = HAL_GetTick();
 	button->periodCounter = 0;
+
+	MCL_Init(&button->clock, clickPeriod_, timPeriod_);
 
 	button->delta = 0;
 
@@ -32,7 +34,7 @@ BT_ClickResult BT_CB_EXTI(BT_Button* button, uint16_t triggerPin)
 	if (!HAL_GPIO_ReadPin(button->GPIOx, button->pin))
 	{
 		button->presses++;
-		button->periodCounter = 0;
+		button->clock.count = 0;
 
 		button->delta = 0;
 
@@ -54,16 +56,30 @@ BT_ClickResult BT_CB_EXTI(BT_Button* button, uint16_t triggerPin)
 
 int BT_CB_TIM(BT_Button* button, TIM_HandleTypeDef* htim)
 {
-//	uint32_t timePassed = __HAL_TIM_GET_AUTORELOAD(htim);
-	uint32_t timePassed = 10;
-	button->periodCounter += timePassed;
-	button->delta += timePassed;
+	MCL_CallBack_Timer(&(button->clock));
 
-	if (button->periodCounter >= button->clickPeriod)
+	button->delta += button->clock.period;
+
+	if (MCL_Pull(&(button->clock)) == MCL_STATE_TIMEOUT)
 	{
 		button->presses = 0;
 		return 1;
 	}
 
 	return 0;
+
+//	uint32_t timePassed = __HAL_TIM_GET_AUTORELOAD(htim);
+//	uint32_t timePassed = 10;
+
+//	button->periodCounter += timePassed;
+//	button->delta += timePassed;
+
+//	if (button->periodCounter >= button->clickPeriod)
+//	{
+//		button->presses = 0;
+//		return 1;
+//	}
+
+//	return 0;
 }
+
