@@ -1,6 +1,6 @@
 #include "stm_button.h"
 
-void BT_Init(BT_Button* button, GPIO_TypeDef* GPIOx_, uint16_t pin_, uint32_t clickPeriod_, uint32_t timPeriod_)
+void BT_Init(BT_Button* button, GPIO_TypeDef* GPIOx_, uint16_t pin_, uint32_t clickPeriod_)
 {
 	button->GPIOx = GPIOx_;
 	button->pin = pin_;
@@ -19,7 +19,7 @@ void BT_Init(BT_Button* button, GPIO_TypeDef* GPIOx_, uint16_t pin_, uint32_t cl
 BT_ClickResult BT_CB_EXTI(BT_Button* button, uint16_t triggerPin)
 {
 	// Make sure it's our pin that interrupted
-	if (!(triggerPin == button->pin))
+	if (triggerPin != button->pin)
 	{
 		return BT_NO_CLICK;
 	}
@@ -31,7 +31,7 @@ BT_ClickResult BT_CB_EXTI(BT_Button* button, uint16_t triggerPin)
 	}
 
 	// If pressed (as opposed to released)
-	if (!HAL_GPIO_ReadPin(button->GPIOx, button->pin))
+	if (HAL_GPIO_ReadPin(button->GPIOx, button->pin) == 0)
 	{
 		button->presses++;
 		button->clock.count = 0;
@@ -58,7 +58,7 @@ int BT_CB_TIM(BT_Button* button, TIM_HandleTypeDef* htim)
 {
 	MCL_CallBack_Timer(&(button->clock));
 
-	button->delta += CLOCK_PERIOD_MS * 10;
+	button->delta += CLOCK_PERIOD_MS;
 
 	if (MCL_Pull(&(button->clock)) == MCL_STATE_TIMEOUT)
 	{

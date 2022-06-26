@@ -29,7 +29,7 @@ typedef struct BT_Button {
 } BT_Button;
 
 
-void BT_Init(BT_Button* button, GPIO_TypeDef* GPIOx_, uint16_t pin_, uint32_t clickPeriod_, uint32_t timPeriod_);
+void BT_Init(BT_Button* button, GPIO_TypeDef* GPIOx_, uint16_t pin_, uint32_t clickPeriod_);
 
 BT_ClickResult BT_CB_EXTI(BT_Button* button, uint16_t triggerPin);
 
